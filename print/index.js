@@ -25,19 +25,21 @@ function primes(max, r0, r1) {
   return ret;
 }
 
+// reuse the same array
+const mark = new Array(1000001);
+
 function segmentedSieve(n, m, prime) {
-  const mark = new Array((m-n)+1).fill(true);
+  mark.fill(true, 0, (m-n) + 1);
   const res = [];
 
   // use the precomputed primes to find primes in current segment
   for (const p of prime) {
     // find the minimum number in [n...m] that is a multiple of prime[i] (divisible by p)
     // for example, if low is 31 and p is 3, we start with 33.
-    let j = Math.ceil(n/p) * p;
+    const low = Math.ceil(n/p) * p;
     // mark all multiples of p
-    while (j <= m) {
+    for (let j = low; j <= m; j += p) {
       mark[j - n] = false;
-      j += p;
     }
   }
 
