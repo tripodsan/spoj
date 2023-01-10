@@ -26,44 +26,25 @@ function primes(max, r0, r1) {
 }
 
 function segmentedSieve(n, m, prime) {
-  // highest prime in pre-computed sieve
-  const limit = prime[prime.length - 1];
-  const mark = new Array(limit+1);
+  const mark = new Array((m-n)+1).fill(true);
   const res = [];
 
-  // Divide the range [n...m] in different segments with size sqrt(n)
-  let low = n;
-  let high = n + limit - 1;
-
-  while (low <= m) {
-    high = Math.min(high, m);
-
-    // a value in mark[i] will finally be false if 'i-low' is not a prime, else true.
-    mark.fill(true);
-
-    // use the precomputed primes to find primes in current segment
-    for (const p of prime) {
-      // find the minimum number in [low...high] that is a multiple of prime[i] (divisible by p)
-      // for example, if low is 31 and p is 3, we start with 33.
-      let loLim = Math.floor(low/p) * p;
-      if (loLim < low){
-        loLim += p;
-      }
-      // mark all multiples of p
-      for (let j = loLim; j <= high; j += p){
-        mark[j - low] = false;
-      }
+  // use the precomputed primes to find primes in current segment
+  for (const p of prime) {
+    // find the minimum number in [n...m] that is a multiple of prime[i] (divisible by p)
+    // for example, if low is 31 and p is 3, we start with 33.
+    let j = Math.ceil(n/p) * p;
+    // mark all multiples of p
+    while (j <= m) {
+      mark[j - n] = false;
+      j += p;
     }
+  }
 
-    for (let i = low; i <= high; i++){
-      if (mark[i - low] === true) {
-        if (i >= n && i <= m) {
-          res.push(i);
-        }
-      }
+  for (let i = n; i <= m; i++){
+    if (mark[i - n] === true) {
+      res.push(i);
     }
-    low = low + limit;
-    high = high + limit;
   }
   if (res.length) {
     print(res.join('\n'));
