@@ -1,4 +1,6 @@
-+ # 24 input lines
+[++++++++ ++++++++ ++++++++ # 24 input lines (uncomment for puzzle)]
++ # 1 input lines
+
 [->
 
 # generate the first decimal; remember the input bits
