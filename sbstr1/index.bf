@@ -1,4 +1,4 @@
-++++++++ ++++++++ ++++++++ # 24 input lines
++ # 24 input lines
 [->
 
 # generate the first decimal; remember the input bits
