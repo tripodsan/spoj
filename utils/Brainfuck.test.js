@@ -15,5 +15,10 @@ describe('Brainfuck Tests', () => {
     const out = Brainfuck.parse(await readFile(resolve(__testdir, 'fixtures', 'echo.bf'), 'utf-8')).run('foobar');
     assert.strictEqual(out, 'foobar');
   });
+
+  it('subtracts a from b', async () => {
+    const out = Brainfuck.parse(await readFile(resolve(__testdir, 'fixtures', 'ab.bf'), 'utf-8')).run('');
+    assert.strictEqual(out, '\x07');
+  });
 });
 
