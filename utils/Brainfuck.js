@@ -30,6 +30,7 @@ export class Brainfuck {
       const op = OPS[c];
       if (op) {
         const ins = {
+          c,
           op,
           line,
           col,
@@ -79,7 +80,7 @@ export class Brainfuck {
   }
 
   add(d) {
-    this.cells[this.ptr] = (this.get() + d + 256) % 256;
+    this.cells[this.ptr] = this.get() + d;
   }
 
   read() {
@@ -122,5 +123,11 @@ export class Brainfuck {
       this.pc++;
     }
     return this.output.join('');
+  }
+
+  minify() {
+    const res = this.code.map((ins) => ins.c);
+    console.log('size:', res.length);
+    console.log(res.join(''));
   }
 }
