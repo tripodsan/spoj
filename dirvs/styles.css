@@ -1,0 +1,27 @@
+body {
+    background: #000000;
+    color: white;
+    font-family: sans-serif;
+}
+
+canvas, #overlay {
+    border: 1px solid #888888;
+    box-sizing: content-box;
+    width: 800px;
+    height: 900px;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 800px 1fr;
+    grid-template-areas: "canvas menu";
+    grid-column-gap: 10px;
+}
+
+canvas, #overlay {
+    grid-area: canvas;
+}
+
+#menu {
+    grid-area: menu;
+}

@@ -1,0 +1,76 @@
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <script src="index.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+<main>
+    <canvas id="canvas" width="800" height="900"></canvas>
+    <canvas id="overlay" width="800" height="900"></canvas>
+    <div id="menu">
+        <button id="solve">solve</button>
+        <button id="reset">reset</button>
+        <p>
+            <label for="info">info:</label>
+            <input id="info" disabled>
+        </p>
+        <p>
+            <label for="dim_x">W:</label>
+            <input id="dim_x" value="30">
+            <label for="dim_y">H:</label>
+            <input id="dim_y" value="30">
+        </p>
+        <p>
+            <label for="b0_x">B0 X:</label>
+            <input id="b0_x" value="15">
+            <label for="b0_y">B0 Y:</label>
+            <input id="b0_y" value="15">
+        </p>
+        <p>
+            <label for="b1_x">B1 X:</label>
+            <input id="b1_x" value="18">
+            <label for="b1_y">B1 Y:</label>
+            <input id="b1_y" value="18">
+        </p>
+        <p>
+            <label for="elevation">elevation:</label>
+            <select id="elevation" value="1">
+                <option>0</option>
+                <option selected>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+            </select>
+        </p>
+        <p>
+            <label for="mode">mode:</label>
+            <select id="mode">
+                <option>draw</option>
+            </select>
+            <label for="radius">radius:</label>
+            <input id="radius" type="number" value="5">
+        </p>
+        <p>
+            <button id="save">save</button>
+            <button id="load">load</button><br>
+            <textarea id="code">5 5
+8 7 6 5 4
+2 2 2 2 2
+2 2 2 2 2
+2 2 2 2 2
+2 2 2 2 2
+1 1 5 1</textarea>
+        </p>
+        <p>
+            Hold command to show line of sight.
+        </p>
+    </div>
+</main>
+</body>
+</html>
