@@ -224,7 +224,7 @@ function main() {
       //   grid[i + 15][i + 2] = 9;
       // }
       // ctx2.clearRect(0, 0, CW, CH);
-      // calcLofs(b0[0], b0[1], x, y, true);
+      // calcLofs(b0[0], b0[1], x, y, true, []);
       // update();
       const e = grid[y][x];
       $info.value = `${x}x${y}: ${e}`;

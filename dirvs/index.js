@@ -7,19 +7,6 @@ const DIRS = [
   [0, -1],
 ]
 
-function dump(grid, x0, y0, x1, y1) {
-  for (let y = 0; y < grid.length; y++) {
-    const row = [...grid[y]];
-    if (y === y0) {
-      row[x0] = `\u001B[31m${row[x0]}\u001B[0m`;
-    }
-    if (y === y1) {
-      row[x1] = `\u001B[31m${row[x1]}\u001B[0m`;
-    }
-    console.log(row.join(' '));
-  }
-}
-
 function lofs(grid, x0, y0, x1, y1, draw, inter) {
   let dx = Math.abs(x1 - x0);
   let dy = Math.abs(y1 - y0);
@@ -80,8 +67,6 @@ function lofs(grid, x0, y0, x1, y1, draw, inter) {
     px = x;
     py = y;
   }
-  // plot first one
-  // plot(x0, y0, x0 + 0.5, y0 + 0.5);
 
   // optimize for 90° cases
   if (dx === 0 || dy === 0) {
@@ -108,21 +93,15 @@ function lofs(grid, x0, y0, x1, y1, draw, inter) {
     return blocked;
   }
 
-  // the line of sight connects the 2 center points of the voxels.
-  let xx = x0 + 0.5;
-  let yy = y0 + 0.5;
-
-  // first step to the edge of the pixel
-  xx += sx / 2;
-  yy += sy / 2;
-
-  let xp = x0;
-  let yp = y0;
-  while (true) {
-    const x = Math.floor(xx);
-    const y = Math.floor(yy);
-    if (sx === 1) {
-      const ir = yy - y;
+  if (sx === 1) {
+    // iterate over x
+    sy = sy > 0 ? 1 : -1;
+    let yp = y0;
+    let y = y0;
+    let ye = (dx + dy) / 2; // start at middle of the right edge
+    for (let x = x0 + 1; x <= x1; x++) {
+      const ir = sy > 0 ? ye / dx : (dx - ye) / dx;
+      const yy = y + ir;
       if (y !== yp && ir > 0) {
         const ix = sy > 0
           ? x - (ir) / sy
@@ -131,8 +110,25 @@ function lofs(grid, x0, y0, x1, y1, draw, inter) {
         plot(x - 1, y, ix, iy, 3);
       }
       plot(x, y, x, yy);
-    } else {
-      const ir = xx - x;
+      if (blocked && !draw) {
+        break;
+      }
+      yp = y;
+      ye += dy;
+      if (ye >= dx) {
+        y += sy;
+        ye -= dx;
+      }
+    }
+  } else {
+    // iterate over y
+    sx = sx > 0 ? 1 : -1;
+    let xp = x0;
+    let x = x0;
+    let xe = (dx + dy) / 2; // start at middle of the bottom edge
+    for (let y = y0 + 1; y <= y1; y++) {
+      const ir = sx > 0 ? xe / dy : (dy - xe) / dy;
+      const xx = x + ir;
       if (x !== xp && ir > 0) {
         const iy = sx > 0
           ? y - (ir) / sx
@@ -141,19 +137,22 @@ function lofs(grid, x0, y0, x1, y1, draw, inter) {
         plot(x, y - 1, ix, iy, 3);
       }
       plot(x, y, xx, y);
+      if (blocked && !draw) {
+        break;
+      }
+      xp = x;
+      xe += dx;
+      if (xe >= dy) {
+        x += sx;
+        xe -= dy;
+      }
     }
-    if (x === x1 && y === y1 || blocked && !draw) {
-      break;
-    }
-    xp = x;
-    yp = y;
-    xx += sx;
-    yy += sy;
   }
+
   return blocked;
 }
 
-function solve(grid, x0, y0, x1, y1) {
+function solve_astar(grid, x0, y0, x1, y1) {
   const W = grid[0].length;
   const H = grid.length;
   const key = (v) => v[0] + v[1]*W;
@@ -266,6 +265,71 @@ function solve(grid, x0, y0, x1, y1) {
   return [];
 }
 
+function solve(grid, x0, y0, x1, y1) {
+  const W = grid[0].length;
+  const H = grid.length;
+
+  // init distance grid
+  const dist = new Array(H);
+  for (let y = 0; y < H; y++) {
+    dist[y] = new Array(W).fill(Number.MAX_SAFE_INTEGER);
+  }
+
+  // remember path for drawing solution;
+  const cameFrom = new Map();
+
+  // mark start
+  dist[y0][x0] = 0;
+
+  const q = []; // todo, use heap
+  q.push({
+    d: 0,
+    v: [x0, y0],
+  });
+  while (q.length) {
+    let { v, d } = q.shift();
+    if (v[0] === x1 && v[1] === y1) {
+      const path = [];
+      do {
+        path.unshift(v);
+        v = cameFrom.get(v);
+      } while (v);
+      return path
+    }
+    const e = grid[v[1]][v[0]];
+    for (const dir of DIRS) {
+      const x = v[0] + dir[0];
+      const y = v[1] + dir[1];
+      if (x < 0 || x >= W || y < 0 || y >= H) {
+        continue;
+      }
+      if (dist[y][x] < Number.MAX_SAFE_INTEGER) {
+        // already visited
+        continue;
+      }
+      // The technician can climb at most 1 metre up or descend at most 3 metres down in a single step.
+      const delta = grid[y][x] - e;
+      if (delta > 1 || delta < -3) {
+        continue;
+      }
+      if (!lofs(grid, x,y, x0, y0) || !lofs(grid, x, y, x1, y1)) {
+        dist[y][x] = d + 1;
+        const n = [x, y];
+        cameFrom.set(n, v);
+        q.push({
+          v: n,
+          d: d + 1,
+        });
+      } else {
+        // not visible
+        dist[y][x] = -1;
+      }
+    }
+    q.sort((e0, e1) => e0.d - e1.d);
+  }
+  return [];
+}
+
 function run() {
   const results = [];
   const numTests = parseInt(readline(), 10);
@@ -278,13 +342,6 @@ function run() {
     let [y0, x0, y1, x1] = readline().split(/\s+/).map((d) => parseInt(d, 10));
     if (i  > -1) {
       const path = solve(grid, x0 - 1, y0 - 1, x1 - 1, y1 - 1);
-      // for (const [x,y] of path) {
-      //   grid[y][x] = `\u001B[1m${grid[y][x]}\u001B[0m`;
-      // }
-      // x1 = 8;
-      // y1 = 4;
-      // console.log(lofs(grid, x0 - 1, y0 - 1, x1 - 1, y1 - 1, true));
-      // dump(grid, x0 - 1, y0 - 1, x1 -1, y1 - 1);
       results.push(path.length
         ? `The shortest path is ${path.length - 1} steps long.`
         : 'Mission impossible!');
