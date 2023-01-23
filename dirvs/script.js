@@ -188,44 +188,44 @@ function main() {
     const x = Math.floor(evt.offsetX / Z);
     const y = Math.floor(evt.offsetY / Z);
     if (x >= 0 && x < W && y >= 0 && y < H) {
-      // onReset();
-      // grid[15][15]=8;
-      // grid[14][16]=6;
-      // grid[13][17]=4;
-      // grid[12][18]=2;
-      // grid[11][19]=0;
-      //
-      // grid[14][14]=6;
-      // grid[13][13]=4;
-      // grid[12][12]=2;
-      // grid[11][11]=0;
-      //
-      // grid[16][14]=6;
-      // grid[17][13]=4;
-      // grid[18][12]=2;
-      // grid[19][11]=0;
-      // for (let yy  = 5; yy < 25; yy++) {
-      //   grid[yy][25] = 9;
-      // }
-      // for (let x = 0; x < 10; x++) {
-      //   grid[1][x + 10] = x;
-      //   grid[4][x + 10] = 4;
-      //   grid[11][x + 17] = x;
-      //   grid[12][x + 17] = x;
-      //   grid[13][x + 17] = x;
-      //   grid[14][x + 17] = x;
-      //   grid[15][x + 17] = x;
-      //   grid[16][x + 17] = x;
-      //   grid[17][x + 17] = x;
-      //   grid[18][x + 17] = x;
-      //   grid[19][x + 17] = x;
-      // }
-      // for (let i = 0; i < 10; i++) {
-      //   grid[i + 15][i + 2] = 9;
-      // }
-      // ctx2.clearRect(0, 0, CW, CH);
-      // calcLofs(b0[0], b0[1], x, y, true, []);
-      // update();
+      onReset();
+      grid[15][15]=8;
+      grid[14][16]=6;
+      grid[13][17]=4;
+      grid[12][18]=2;
+      grid[11][19]=0;
+
+      grid[14][14]=6;
+      grid[13][13]=4;
+      grid[12][12]=2;
+      grid[11][11]=0;
+
+      grid[16][14]=6;
+      grid[17][13]=4;
+      grid[18][12]=2;
+      grid[19][11]=0;
+      for (let yy  = 5; yy < 25; yy++) {
+        grid[yy][25] = 9;
+      }
+      for (let x = 0; x < 10; x++) {
+        grid[1][x + 10] = x;
+        grid[4][x + 10] = 4;
+        grid[11][x + 17] = x;
+        grid[12][x + 17] = x;
+        grid[13][x + 17] = x;
+        grid[14][x + 17] = x;
+        grid[15][x + 17] = x;
+        grid[16][x + 17] = x;
+        grid[17][x + 17] = x;
+        grid[18][x + 17] = x;
+        grid[19][x + 17] = x;
+      }
+      for (let i = 0; i < 10; i++) {
+        grid[i + 15][i + 2] = 9;
+      }
+      ctx2.clearRect(0, 0, CW, CH);
+      calcLofs(b0[0], b0[1], x, y, true, []);
+      update();
       const e = grid[y][x];
       $info.value = `${x}x${y}: ${e}`;
     }

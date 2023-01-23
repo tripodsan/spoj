@@ -1,5 +1,28 @@
 /* global readline, print */
 
+/*
+  algorithm: do a shortest path finding while checking the terrain and visibility constraints.
+  the lofs was tricky. the idea is to use a modified bresenham that also checks the off pixels,
+  and then intersect the line-of-sight line with the face at this terrain. when the target is
+  lower than the start, we only need to consider the far edges of the columns, otherwise the
+  closer edges.
+
+       ╱      ╲
+     ┌╱┐      ┌╲┐
+     * │      │ *
+   ┌╱┤ │    ┌─┤ │╲
+   * │ │    │ │ │ ╲
+  ╱└─┴─┘    └─┴─┘
+
+  but it never worked,
+  probably dues to some edge case.
+
+  then I implemented the same algo as https://github.com/Codes-iiita/SPOJ/blob/master/dirvs.cpp,
+  which just scans first in X and then in Y direction, and calculates the intersection of the
+  faces....this worked.
+
+ */
+
 const DIRS = [
   [-1, 0],
   [0, 1],
@@ -7,7 +30,126 @@ const DIRS = [
   [0, -1],
 ]
 
+function lofs_x(grid, x0, y0, x1, y1, draw, inter) {
+  if (x0 > x1) {
+    let t = x0; x0 = x1; x1 = t;
+    t = y0; y0 = y1; y1 = t;
+  }
+  // traverse from x0 to x1 and test both faces of the columns at that position
+  const z0 = grid[y0][x0] + 0.5;
+  const z1 = grid[y1][x1] + 0.5;
+  const dz = z1 - z0;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const l = Math.sqrt(dx*dx + dy*dy);
+
+  for (let x = x0; x < x1; x++) {
+    // consider the face at the back of a field (in direction of travel)
+    const xx = x + 1;
+    const yy = y0 + 0.5 + (xx - x0 - 0.5) * dy / dx;
+    const dxx = xx - x0 - 0.5;
+    const dyy = yy - y0 - 0.5;
+    const lp = Math.sqrt(dxx*dxx + dyy*dyy);
+    const y = Math.floor(yy);
+    const ir = y - yy;
+    let e;
+    if (ir === 0) {
+      // if we hit a corner we check the 2 diagonal fields
+      if (dy > 0) {
+        // ┌─┐
+        // └─*─┐
+        //   └─┘
+        e = Math.max(grid[y -1][x], grid[y][x + 1]);
+      } else {
+        //   ┌─┐
+        // ┌─*─┘
+        // └─┘
+        e = Math.max(grid[y][x], grid[y - 1][x + 1]);
+      }
+    } else {
+      // we check the 2 fields left and right
+      // ┌─┬─┐
+      // └─┴─┘
+      e = Math.max(grid[y][x], grid[y][x + 1]);
+    }
+    // compute the z:
+    const z = lp/l * dz + z0;
+    if (inter) {
+      inter.push({ x, y, ix: xx, iy: yy, lp, z, e });
+    }
+    if (z < e) {
+      return [xx, yy, z];
+    }
+  }
+  return null;
+}
+
+function lofs_y(grid, x0, y0, x1, y1, draw, inter) {
+  if (y0 > y1) {
+    let t = x0; x0 = x1; x1 = t;
+    t = y0; y0 = y1; y1 = t;
+  }
+  // traverse from y0 to y1 and test both faces of the columns at that position
+  const z0 = grid[y0][x0] + 0.5;
+  const z1 = grid[y1][x1] + 0.5;
+  const dz = z1 - z0;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const sx = dx > 0 ? 1 : -1;
+  const l = Math.sqrt(dx*dx + dy*dy);
+
+  for (let y = y0; y < y1; y++) {
+    // consider the face at the back of a field (in direction of travel)
+    const yy = y + 1;
+    const xx = x0 + 0.5 + (yy - y0 - 0.5) * dx / dy;
+    const dxx = xx - x0 - 0.5;
+    const dyy = yy - y0 - 0.5;
+    const lp = Math.sqrt(dxx*dxx + dyy*dyy);
+    const x = Math.floor(xx);
+    const ir = x - xx;
+    let e;
+    if (ir === 0) {
+      // if we hit a corner we check the 2 diagonal fields
+      if (sx > 0) {
+        // ┌─┐
+        // └─*─┐
+        //   └─┘
+        e = Math.max(grid[y][x - 1], grid[y + 1][x]);
+      } else {
+        //   ┌─┐
+        // ┌─*─┘
+        // └─┘
+        e = Math.max(grid[y][x], grid[y + 1][x - 1]);
+      }
+    } else {
+      // we check the 2 fields above and below
+      // ┌─┐
+      // ├*┤
+      // └─┘
+      e = Math.max(grid[y][x], grid[y + 1][x]);
+    }
+    // compute the z:
+    const z = lp/l * dz + z0;
+    if (inter) {
+      inter.push({ x, y, ix: xx, iy: yy, lp, z, e });
+    }
+    if (z < e) {
+      return [xx, yy, z];
+    }
+  }
+  return null;
+}
+
 function lofs(grid, x0, y0, x1, y1, draw, inter) {
+  const blocked = lofs_x(grid, x0, y0, x1, y1, draw, inter);
+  if (blocked) {
+    return blocked;
+  }
+  return lofs_y(grid, x0, y0, x1, y1, draw, inter);
+}
+
+
+function lofs_xy(grid, x0, y0, x1, y1, draw, inter) {
   let dx = Math.abs(x1 - x0);
   let dy = Math.abs(y1 - y0);
   const l = Math.sqrt(dx*dx + dy*dy);
