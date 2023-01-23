@@ -14,8 +14,7 @@
    * │ │    │ │ │ ╲
   ╱└─┴─┘    └─┴─┘
 
-  but it never worked,
-  probably dues to some edge case.
+  but it never worked, probably due to some edge cases....
 
   then I implemented the same algo as https://github.com/Codes-iiita/SPOJ/blob/master/dirvs.cpp,
   which just scans first in X and then in Y direction, and calculates the intersection of the
