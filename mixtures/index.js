@@ -4,7 +4,9 @@ function solve(colors, p, l, cache) {
   // console.log(' '.repeat(d), p, p + l)
   let best = cache[p][l];
   if (!best) {
-    if (l === 2) {
+    if (l === 1) {
+      best = [colors[p], 0];
+    } else if (l === 2) {
       best = [(colors[p] + colors[p + 1]) % 100, colors[p] * colors[p + 1]];
     } else {
       // generate all possible segmentations
@@ -36,7 +38,6 @@ while (line = readline()) {
   const cache = new Array(N);
   for (let i = 0; i < N; i++) {
     cache[i] = new Array(N);
-    cache[i][1] = [colors[i], 0];
   }
   results.push(solve(colors, 0, N, cache)[1]);
 }
